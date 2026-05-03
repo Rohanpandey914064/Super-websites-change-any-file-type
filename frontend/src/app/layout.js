@@ -1,7 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, createContext, useContext } from 'react';
 import './globals.css';
+
+// Context definition
+export const ThemeContext = createContext({ darkMode: true, setDarkMode: () => {} });
+export const useTheme = () => useContext(ThemeContext);
 
 export default function RootLayout({ children }) {
   const [darkMode, setDarkMode] = useState(true);
@@ -34,7 +38,3 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
-
-import { createContext, useContext } from 'react';
-export const ThemeContext = createContext({ darkMode: true, setDarkMode: () => {} });
-export const useTheme = () => useContext(ThemeContext);

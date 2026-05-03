@@ -1,7 +1,6 @@
-const { Queue, Worker } = require('bullmq');
-const Redis = require('ioredis');
 const path = require('path');
 const fs = require('fs-extra');
+const { v4: uuidv4 } = require('uuid');
 
 // Import services
 const { pdfToText, pdfToHtml, textToPdf } = require('./pdfService');
@@ -11,38 +10,21 @@ const { csvToJson, csvToExcel, jsonToCsv, jsonToExcel, excelToCsv, excelToJson, 
 
 const config = require('../config');
 
-// Redis connection setup
-const redisOptions = {
-  ...config.REDIS,
-  maxRetriesPerRequest: null,
-};
-
-// If Redis is not available, we need a way to fail gracefully or process synchronously
-// For this SaaS app, Redis is a hard requirement for the BullMQ architecture.
-const connection = new Redis(redisOptions);
-
-connection.on('error', (err) => {
-  console.error('[Redis] Connection error:', err.message);
-  if (err.code === 'ECONNREFUSED') {
-    console.error('❌ REDIS IS NOT RUNNING. Please start your Redis server.');
-  }
-});
-
-// Define Queue
-const conversionQueue = new Queue('FileConversionQueue', { connection });
+// In-memory job store (Replacing Redis)
+const jobs = new Map();
 
 // Helper to determine which function to call based on input/output types
 async function processConversion(jobData) {
   const { inputPath, outputPath, inputFormat, outputFormat } = jobData;
 
-  console.log(`[Worker] Processing ${inputFormat} -> ${outputFormat}`);
+  console.log(`[MemoryWorker] Processing ${inputFormat} -> ${outputFormat}`);
 
   // PDF Conversions
   if (inputFormat === 'application/pdf') {
     if (outputFormat === 'text/plain') return await pdfToText(inputPath, outputPath);
     if (outputFormat === 'text/html') return await pdfToHtml(inputPath, outputPath);
     if (outputFormat === 'image/png' || outputFormat === 'image/jpeg') {
-        throw new Error('PDF to Image conversion requires poppler/ghostscript or external API not fully implemented in local module yet. Try text/plain or text/html.');
+        throw new Error('PDF to Image conversion requires external tools not fully implemented in local module yet. Try text/plain or text/html.');
     }
   }
 
@@ -88,57 +70,93 @@ async function processConversion(jobData) {
   throw new Error(`Conversion from ${inputFormat} to ${outputFormat} is not implemented yet.`);
 }
 
-// Define Worker
-const worker = new Worker('FileConversionQueue', async job => {
-  const { jobId, inputPath, outputPath } = job.data;
-  
-  try {
-    // Report progress start
-    await job.updateProgress(10);
-    
-    // Check if input exists
-    if (!await fs.pathExists(inputPath)) {
-      throw new Error(`Input file not found at path: ${inputPath}`);
-    }
-
-    await job.updateProgress(30);
-
-    // Run conversion
-    const metadata = await processConversion(job.data);
-    
-    await job.updateProgress(90);
-
-    // Verify output was created
-    if (!await fs.pathExists(outputPath)) {
-        throw new Error('Conversion process finished but output file was not generated.');
-    }
-    
-    const stats = await fs.stat(outputPath);
-    
-    await job.updateProgress(100);
-
-    return { 
-      success: true, 
-      message: 'Conversion completed successfully', 
-      fileSize: stats.size,
-      metadata
+/**
+ * Mock Conversion Queue using in-memory Map
+ */
+const conversionQueue = {
+  add: async (name, data) => {
+    const jobId = uuidv4();
+    const jobRecord = {
+      id: jobId,
+      data: data,
+      state: 'active',
+      progress: 0,
+      returnvalue: null,
+      failedReason: null,
+      timestamp: Date.now()
     };
 
-  } catch (error) {
-    console.error(`[Job ${job.id}] Failed:`, error);
-    throw error;
+    jobs.set(jobId, jobRecord);
+
+    // Process conversion in the background (using setImmediate to not block the request)
+    setImmediate(async () => {
+      try {
+        jobRecord.progress = 10;
+        
+        if (!await fs.pathExists(data.inputPath)) {
+          throw new Error(`Input file not found: ${path.basename(data.inputPath)}`);
+        }
+
+        jobRecord.progress = 30;
+        const metadata = await processConversion(data);
+        
+        jobRecord.progress = 90;
+        
+        if (!await fs.pathExists(data.outputPath)) {
+          throw new Error('Conversion failed to generate output file.');
+        }
+        
+        const stats = await fs.stat(data.outputPath);
+        
+        jobRecord.progress = 100;
+        jobRecord.state = 'completed';
+        jobRecord.returnvalue = { 
+          success: true, 
+          message: 'Conversion completed successfully', 
+          fileSize: stats.size,
+          metadata
+        };
+        
+        console.log(`[MemoryWorker] Job ${jobId} completed successfully.`);
+
+      } catch (error) {
+        console.error(`[MemoryWorker] Job ${jobId} failed:`, error.message);
+        jobRecord.state = 'failed';
+        jobRecord.failedReason = error.message;
+      }
+    });
+
+    return { id: jobId };
+  },
+
+  getJob: async (jobId) => {
+    const job = jobs.get(jobId);
+    if (!job) return null;
+    
+    // Return an object that matches the BullMQ Job interface used in status.js
+    return {
+      id: job.id,
+      data: job.data,
+      progress: job.progress,
+      returnvalue: job.returnvalue,
+      failedReason: job.failedReason,
+      getState: async () => job.state
+    };
   }
-}, { connection });
+};
 
-worker.on('completed', job => {
-  console.log(`[Worker] Job ${job.id} completed successfully.`);
-});
-
-worker.on('failed', (job, err) => {
-  console.error(`[Worker] Job ${job.id} failed with error: ${err.message}`);
-});
+// Periodic cleanup of the memory map (to avoid memory leaks)
+setInterval(() => {
+  const now = Date.now();
+  const expiry = 60 * 60 * 1000; // 1 hour
+  for (const [id, job] of jobs.entries()) {
+    if (now - job.timestamp > expiry) {
+      jobs.delete(id);
+    }
+  }
+}, 10 * 60 * 1000); // Clean every 10 mins
 
 module.exports = {
   conversionQueue,
-  worker // Exported just for reference, it starts running immediately when required
+  worker: null // Mock worker for consistency
 };

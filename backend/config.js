@@ -19,13 +19,6 @@ const config = {
   UPLOADS_DIR: resolvePath(process.env.UPLOADS_DIR, 'uploads'),
   CONVERTED_DIR: resolvePath(process.env.CONVERTED_DIR, 'converted'),
   
-  // Redis
-  REDIS: {
-    host: process.env.REDIS_HOST || '127.0.0.1',
-    port: parseInt(process.env.REDIS_PORT || '6379'),
-    password: process.env.REDIS_PASSWORD || undefined,
-  },
-  
   // File Settings
   MAX_FILE_SIZE_MB: parseInt(process.env.MAX_FILE_SIZE_MB) || 50,
   FILE_EXPIRY_MINUTES: parseInt(process.env.FILE_EXPIRY_MINUTES) || 30,
