@@ -1,6 +1,7 @@
+const { Queue, Worker } = require('bullmq');
+const Redis = require('ioredis');
 const path = require('path');
 const fs = require('fs-extra');
-const { v4: uuidv4 } = require('uuid');
 
 // Import services
 const { pdfToText, pdfToHtml, textToPdf } = require('./pdfService');
@@ -10,22 +11,28 @@ const { csvToJson, csvToExcel, jsonToCsv, jsonToExcel, excelToCsv, excelToJson, 
 
 const config = require('../config');
 
-// In-memory job store (Replacing Redis)
-const jobs = new Map();
+// Redis Connection
+const redisConfig = config.REDIS_URL || {
+  host: config.REDIS_HOST,
+  port: config.REDIS_PORT,
+  password: config.REDIS_PASSWORD,
+  maxRetriesPerRequest: null, // Required for BullMQ
+};
 
-// Helper to determine which function to call based on input/output types
+const connection = new Redis(redisConfig);
+
+/**
+ * Helper to determine which function to call based on input/output types
+ */
 async function processConversion(jobData) {
   const { inputPath, outputPath, inputFormat, outputFormat } = jobData;
 
-  console.log(`[MemoryWorker] Processing ${inputFormat} -> ${outputFormat}`);
+  console.log(`[Worker] Processing ${inputFormat} -> ${outputFormat}`);
 
   // PDF Conversions
   if (inputFormat === 'application/pdf') {
     if (outputFormat === 'text/plain') return await pdfToText(inputPath, outputPath);
     if (outputFormat === 'text/html') return await pdfToHtml(inputPath, outputPath);
-    if (outputFormat === 'image/png' || outputFormat === 'image/jpeg') {
-        throw new Error('PDF to Image conversion requires external tools not fully implemented in local module yet. Try text/plain or text/html.');
-    }
   }
 
   // DOCX Conversions
@@ -71,92 +78,57 @@ async function processConversion(jobData) {
 }
 
 /**
- * Mock Conversion Queue using in-memory Map
+ * BullMQ Queue Initialization
  */
-const conversionQueue = {
-  add: async (name, data) => {
-    const jobId = uuidv4();
-    const jobRecord = {
-      id: jobId,
-      data: data,
-      state: 'active',
-      progress: 0,
-      returnvalue: null,
-      failedReason: null,
-      timestamp: Date.now()
-    };
+const conversionQueue = new Queue('conversion-queue', { connection });
 
-    jobs.set(jobId, jobRecord);
-
-    // Process conversion in the background (using setImmediate to not block the request)
-    setImmediate(async () => {
-      try {
-        jobRecord.progress = 10;
-        
-        if (!await fs.pathExists(data.inputPath)) {
-          throw new Error(`Input file not found: ${path.basename(data.inputPath)}`);
-        }
-
-        jobRecord.progress = 30;
-        const metadata = await processConversion(data);
-        
-        jobRecord.progress = 90;
-        
-        if (!await fs.pathExists(data.outputPath)) {
-          throw new Error('Conversion failed to generate output file.');
-        }
-        
-        const stats = await fs.stat(data.outputPath);
-        
-        jobRecord.progress = 100;
-        jobRecord.state = 'completed';
-        jobRecord.returnvalue = { 
-          success: true, 
-          message: 'Conversion completed successfully', 
-          fileSize: stats.size,
-          metadata
-        };
-        
-        console.log(`[MemoryWorker] Job ${jobId} completed successfully.`);
-
-      } catch (error) {
-        console.error(`[MemoryWorker] Job ${jobId} failed:`, error.message);
-        jobRecord.state = 'failed';
-        jobRecord.failedReason = error.message;
-      }
-    });
-
-    return { id: jobId };
-  },
-
-  getJob: async (jobId) => {
-    const job = jobs.get(jobId);
-    if (!job) return null;
+/**
+ * BullMQ Worker Initialization
+ */
+const worker = new Worker('conversion-queue', async (job) => {
+  const data = job.data;
+  
+  try {
+    await job.updateProgress(10);
     
-    // Return an object that matches the BullMQ Job interface used in status.js
-    return {
-      id: job.id,
-      data: job.data,
-      progress: job.progress,
-      returnvalue: job.returnvalue,
-      failedReason: job.failedReason,
-      getState: async () => job.state
-    };
-  }
-};
-
-// Periodic cleanup of the memory map (to avoid memory leaks)
-setInterval(() => {
-  const now = Date.now();
-  const expiry = 60 * 60 * 1000; // 1 hour
-  for (const [id, job] of jobs.entries()) {
-    if (now - job.timestamp > expiry) {
-      jobs.delete(id);
+    if (!await fs.pathExists(data.inputPath)) {
+      throw new Error(`Input file not found: ${path.basename(data.inputPath)}`);
     }
+
+    await job.updateProgress(30);
+    const metadata = await processConversion(data);
+    
+    await job.updateProgress(90);
+    
+    if (!await fs.pathExists(data.outputPath)) {
+      throw new Error('Conversion failed to generate output file.');
+    }
+    
+    const stats = await fs.stat(data.outputPath);
+    
+    await job.updateProgress(100);
+    
+    console.log(`[Worker] Job ${job.id} completed successfully.`);
+    
+    return { 
+      success: true, 
+      message: 'Conversion completed successfully', 
+      fileSize: stats.size,
+      metadata
+    };
+
+  } catch (error) {
+    console.error(`[Worker] Job ${job.id} failed:`, error.message);
+    throw error; // Let BullMQ handle the failure state
   }
-}, 10 * 60 * 1000); // Clean every 10 mins
+}, { connection });
+
+// Handle worker events
+worker.on('error', err => {
+  console.error('[Worker] Fatal error:', err);
+});
 
 module.exports = {
   conversionQueue,
-  worker: null // Mock worker for consistency
+  worker
 };

@@ -65,7 +65,7 @@ export default function Home() {
                   <p className="text-sm text-surface-500 dark:text-surface-400">Files are auto-deleted after 30 mins.</p>
                 </div>
               </div>
-              <div className="flex items-start gap-4">
+              {/* <div className="flex items-start gap-4">
                 <div className="w-10 h-10 rounded-lg bg-surface-100 dark:bg-surface-800 flex items-center justify-center flex-shrink-0">
                   <Clock className="w-5 h-5 text-primary-500" />
                 </div>
@@ -73,7 +73,7 @@ export default function Home() {
                   <h3 className="font-bold mb-1">Lightning Fast</h3>
                   <p className="text-sm text-surface-500 dark:text-surface-400">Powered by BullMQ background processing.</p>
                 </div>
-              </div>
+              </div> */}
             </motion.div>
           </motion.div>
 

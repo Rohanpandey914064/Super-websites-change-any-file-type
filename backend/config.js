@@ -19,6 +19,12 @@ const config = {
   UPLOADS_DIR: resolvePath(process.env.UPLOADS_DIR, 'uploads'),
   CONVERTED_DIR: resolvePath(process.env.CONVERTED_DIR, 'converted'),
   
+  // Redis for BullMQ
+  REDIS_URL: process.env.REDIS_URL || null,
+  REDIS_HOST: process.env.REDIS_HOST || '127.0.0.1',
+  REDIS_PORT: parseInt(process.env.REDIS_PORT) || 6379,
+  REDIS_PASSWORD: process.env.REDIS_PASSWORD || null,
+  
   // File Settings
   MAX_FILE_SIZE_MB: parseInt(process.env.MAX_FILE_SIZE_MB) || 50,
   FILE_EXPIRY_MINUTES: parseInt(process.env.FILE_EXPIRY_MINUTES) || 30,
