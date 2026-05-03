@@ -10,33 +10,6 @@ A modern, scalable SaaS-style web application for converting files between vario
 
 ## 🛠️ Prerequisites
 - [Node.js](https://nodejs.org/) (v18+)
-- [Redis](https://redis.io/) (Required for background job processing)
-
-## 📦 Setup Instructions
-
-### 1. Clone the repository
-```bash
-git clone <repository-url>
-cd super-website-that-change-pdf-to-any-things
-```
-
-### 2. Backend Setup
-```bash
-cd backend
-npm install
-cp .env.example .env
-# Ensure REDIS_HOST and REDIS_PORT are correct in .env
-npm run dev
-```
-
-### 3. Frontend Setup
-```bash
-cd ../frontend
-npm install
-npm run dev
-```
-
-The app will be available at `http://localhost:3000`.
 
 ## 📁 Project Structure
 - `/frontend`: Next.js application (React components, styles, API integration)
