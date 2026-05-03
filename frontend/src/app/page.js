@@ -36,24 +36,21 @@ export default function Home() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-24">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
-          
+
           {/* Hero Content */}
-          <motion.div 
+          <motion.div
             initial="hidden"
             animate="visible"
             variants={containerVariants}
             className="space-y-8"
           >
             <motion.div variants={itemVariants}>
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-100 dark:bg-primary-950/50 text-primary-600 dark:text-primary-400 text-sm font-semibold mb-4">
-                <Zap className="w-4 h-4" /> New: OCR for PDF (Coming Soon)
-              </span>
               <h1 className="text-5xl lg:text-7xl font-black leading-tight tracking-tight mb-6">
                 Convert Files <br />
                 <span className="gradient-text">Instantly.</span>
               </h1>
               <p className="text-lg text-surface-500 dark:text-surface-400 max-w-lg leading-relaxed">
-                The most powerful, secure, and fast universal file converter. 
+                The most powerful, secure, and fast universal file converter.
                 PDF, Images, Documents, and Data — all in one place.
               </p>
             </motion.div>
@@ -81,7 +78,7 @@ export default function Home() {
           </motion.div>
 
           {/* Converter Dashboard */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -89,7 +86,7 @@ export default function Home() {
             className="space-y-6"
           >
             <FileUpload onFileUploaded={setUploadedFile} />
-            
+
             {uploadedFile && (
               <ConversionPanel uploadedFile={uploadedFile} />
             )}
@@ -113,7 +110,7 @@ export default function Home() {
             <h2 className="text-3xl font-black mb-4">Supported Conversions</h2>
             <p className="text-surface-500 dark:text-surface-400">Over 50+ conversion pairs supported natively.</p>
           </div>
-          
+
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {['PDF → TXT', 'DOCX → PDF', 'JPG → WebP', 'CSV → XLSX', 'XLSX → JSON', 'PNG → PDF', 'JSON → CSV', 'PDF → HTML', 'TXT → PDF', 'WebP → JPG'].map((pair) => (
               <div key={pair} className="glass p-4 rounded-xl text-center font-bold text-sm hover:scale-105 transition-transform cursor-default">

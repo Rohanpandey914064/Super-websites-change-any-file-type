@@ -16,7 +16,7 @@ export default function Header() {
               <Zap className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-bold tracking-tight">
-              Convert<span className="gradient-text">Flow</span>
+              Rohan<span className="gradient-text">UniversalConverte</span>
             </span>
           </div>
 
@@ -27,9 +27,6 @@ export default function Header() {
             </a>
             <a href="#formats" className="text-sm font-medium text-surface-500 dark:text-surface-400 hover:text-primary-500 dark:hover:text-primary-400 transition-colors">
               Formats
-            </a>
-            <a href="#how-it-works" className="text-sm font-medium text-surface-500 dark:text-surface-400 hover:text-primary-500 dark:hover:text-primary-400 transition-colors">
-              How It Works
             </a>
           </nav>
 
