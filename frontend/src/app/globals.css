@@ -1,0 +1,117 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@layer base {
+  * {
+    @apply box-border;
+  }
+  html {
+    @apply scroll-smooth;
+  }
+  body {
+    @apply font-sans antialiased;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/70 dark:bg-surface-800/60 backdrop-blur-xl border border-white/20 dark:border-white/10;
+  }
+  .glass-strong {
+    @apply bg-white/90 dark:bg-surface-800/80 backdrop-blur-2xl border border-white/30 dark:border-white/10;
+  }
+  .btn-primary {
+    @apply px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl 
+           hover:from-primary-600 hover:to-primary-700 active:scale-[0.97] 
+           transition-all duration-200 shadow-lg shadow-primary-500/25
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100;
+  }
+  .btn-secondary {
+    @apply px-6 py-3 bg-surface-100 dark:bg-surface-700 text-surface-800 dark:text-surface-50
+           font-semibold rounded-xl hover:bg-surface-200 dark:hover:bg-surface-700/80
+           active:scale-[0.97] transition-all duration-200 border border-surface-200 dark:border-surface-700;
+  }
+  .card {
+    @apply glass-strong rounded-2xl shadow-xl shadow-black/5 dark:shadow-black/20;
+  }
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary-400 via-purple-400 to-pink-400 bg-clip-text text-transparent;
+  }
+  .gradient-bg {
+    background: linear-gradient(-45deg, #6366f1, #8b5cf6, #a855f7, #6366f1);
+    background-size: 300% 300%;
+    animation: gradient 8s ease infinite;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-surface-200 dark:bg-surface-700 rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-surface-300 dark:bg-surface-600;
+}
+
+/* Animated gradient orbs for background */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.3;
+  pointer-events: none;
+}
+.orb-1 {
+  width: 400px;
+  height: 400px;
+  background: #6366f1;
+  top: -100px;
+  right: -100px;
+  animation: float 8s ease-in-out infinite;
+}
+.orb-2 {
+  width: 350px;
+  height: 350px;
+  background: #a855f7;
+  bottom: -80px;
+  left: -80px;
+  animation: float 10s ease-in-out infinite reverse;
+}
+.orb-3 {
+  width: 250px;
+  height: 250px;
+  background: #ec4899;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: float 12s ease-in-out infinite;
+}
+
+/* Progress bar animation */
+.progress-bar {
+  background: linear-gradient(90deg, #6366f1, #a855f7, #6366f1);
+  background-size: 200% 100%;
+  animation: progressShimmer 2s linear infinite;
+}
+@keyframes progressShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Dropzone pulse */
+.dropzone-active {
+  animation: dropPulse 1.5s ease-in-out infinite;
+}
+@keyframes dropPulse {
+  0%, 100% { border-color: #6366f1; box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.3); }
+  50% { border-color: #a855f7; box-shadow: 0 0 0 12px rgba(99, 102, 241, 0); }
+}

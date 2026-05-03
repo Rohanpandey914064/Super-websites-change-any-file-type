@@ -1,0 +1,31 @@
+{
+  "name": "file-converter-frontend",
+  "version": "1.0.0",
+  "description": "Universal File Converter - Frontend",
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "axios": "^1.6.5",
+    "clsx": "^2.1.0",
+    "framer-motion": "^11.0.5",
+    "lucide-react": "^0.323.0",
+    "next": "^14.2.35",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-dropzone": "^14.2.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
+    "autoprefixer": "^10.4.17",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "^16.2.4",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1"
+  }
+}
