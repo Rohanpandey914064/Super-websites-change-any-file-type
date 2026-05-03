@@ -12,14 +12,14 @@ const { csvToJson, csvToExcel, jsonToCsv, jsonToExcel, excelToCsv, excelToJson, 
 const config = require('../config');
 
 // Redis Connection
-const redisConfig = config.REDIS_URL || {
-  host: config.REDIS_HOST,
-  port: config.REDIS_PORT,
-  password: config.REDIS_PASSWORD,
-  maxRetriesPerRequest: null, // Required for BullMQ
-};
-
-const connection = new Redis(redisConfig);
+const connection = config.REDIS_URL
+  ? new Redis(config.REDIS_URL, { maxRetriesPerRequest: null })
+  : new Redis({
+      host: config.REDIS_HOST,
+      port: config.REDIS_PORT,
+      password: config.REDIS_PASSWORD,
+      maxRetriesPerRequest: null,
+    });
 
 /**
  * Helper to determine which function to call based on input/output types
