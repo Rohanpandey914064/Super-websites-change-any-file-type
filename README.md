@@ -16,6 +16,7 @@ The application is built using a decoupled architecture with a **Next.js** front
 - **Animations**: [Framer Motion](https://www.framer.com/motion/) for smooth micro-interactions.
 - **Icons**: [Lucide React](https://lucide.dev/) for clean, modern iconography.
 - **Uploads**: [React Dropzone](https://react-dropzone.js.org/) for intuitive drag-and-drop support.
+- **Analytics**: [Vercel Analytics](https://vercel.com/analytics) for real-time traffic insights.
 - **State Management**: React Hooks & Context API.
 
 ### **Backend**
