@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, createContext, useContext } from 'react';
+import { Analytics } from "@vercel/analytics/next";
 import './globals.css';
 
 // Context definition
@@ -33,6 +34,7 @@ export default function RootLayout({ children }) {
       <body className="min-h-screen bg-surface-50 dark:bg-surface-900 text-surface-800 dark:text-surface-50 transition-colors duration-300">
         <ThemeContext.Provider value={{ darkMode, setDarkMode }}>
           {children}
+          <Analytics />
         </ThemeContext.Provider>
       </body>
     </html>
