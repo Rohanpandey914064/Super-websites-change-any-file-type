@@ -2,7 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+:root {
+  --tesla-blue: #3e6ae1;
+  --tesla-blue-hover: #3457c1;
+  --tesla-black: #171a20;
+  --tesla-dark: #0a0a0c;
+  --tesla-zinc: #393c41;
+  --tesla-subtext: #5c5e62;
+  --tesla-light: #f4f4f4;
+  --tesla-border: rgba(0, 0, 0, 0.12);
+}
+
+.dark {
+  --tesla-border: rgba(255, 255, 255, 0.12);
+}
 
 @layer base {
   * {
@@ -17,101 +30,73 @@
 }
 
 @layer components {
-  .glass {
-    @apply bg-white/70 dark:bg-surface-800/60 backdrop-blur-xl border border-white/20 dark:border-white/10;
+  .tesla-btn-primary {
+    background-color: #3e6ae1;
+    color: #ffffff;
+    font-weight: 600;
+    border-radius: 4px;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .glass-strong {
-    @apply bg-white/90 dark:bg-surface-800/80 backdrop-blur-2xl border border-white/30 dark:border-white/10;
+  .tesla-btn-primary:hover {
+    background-color: #3457c1;
+    box-shadow: 0 4px 14px rgba(62, 106, 225, 0.35);
   }
-  .btn-primary {
-    @apply px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl 
-           hover:from-primary-600 hover:to-primary-700 active:scale-[0.97] 
-           transition-all duration-200 shadow-lg shadow-primary-500/25
-           disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100;
+
+  .tesla-btn-secondary {
+    background-color: rgba(255, 255, 255, 0.95);
+    color: #171a20;
+    font-weight: 600;
+    border-radius: 4px;
+    backdrop-filter: blur(8px);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .btn-secondary {
-    @apply px-6 py-3 bg-surface-100 dark:bg-surface-700 text-surface-800 dark:text-surface-50
-           font-semibold rounded-xl hover:bg-surface-200 dark:hover:bg-surface-700/80
-           active:scale-[0.97] transition-all duration-200 border border-surface-200 dark:border-surface-700;
+  .dark .tesla-btn-secondary {
+    background-color: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
   }
-  .card {
-    @apply glass-strong rounded-2xl shadow-xl shadow-black/5 dark:shadow-black/20;
+  .tesla-btn-secondary:hover {
+    background-color: #ffffff;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
   }
-  .gradient-text {
-    @apply bg-gradient-to-r from-primary-400 via-purple-400 to-pink-400 bg-clip-text text-transparent;
+
+  .tesla-btn-outline {
+    background-color: transparent;
+    border: 2px solid #171a20;
+    color: #171a20;
+    font-weight: 600;
+    border-radius: 4px;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .gradient-bg {
-    background: linear-gradient(-45deg, #6366f1, #8b5cf6, #a855f7, #6366f1);
-    background-size: 300% 300%;
-    animation: gradient 8s ease infinite;
+  .dark .tesla-btn-outline {
+    border-color: #ffffff;
+    color: #ffffff;
+  }
+  .tesla-btn-outline:hover {
+    background-color: #171a20;
+    color: #ffffff;
+  }
+  .dark .tesla-btn-outline:hover {
+    background-color: #ffffff;
+    color: #171a20;
+  }
+
+  .card-tesla {
+    @apply rounded-xl border border-black/10 dark:border-white/10 bg-white/90 dark:bg-[#121316]/90 backdrop-blur-xl shadow-xs;
   }
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  @apply bg-transparent;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  @apply bg-surface-200 dark:bg-surface-700 rounded-full;
+  background: rgba(120, 120, 120, 0.3);
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-surface-300 dark:bg-surface-600;
-}
-
-/* Animated gradient orbs for background */
-.orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.3;
-  pointer-events: none;
-}
-.orb-1 {
-  width: 400px;
-  height: 400px;
-  background: #6366f1;
-  top: -100px;
-  right: -100px;
-  animation: float 8s ease-in-out infinite;
-}
-.orb-2 {
-  width: 350px;
-  height: 350px;
-  background: #a855f7;
-  bottom: -80px;
-  left: -80px;
-  animation: float 10s ease-in-out infinite reverse;
-}
-.orb-3 {
-  width: 250px;
-  height: 250px;
-  background: #ec4899;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  animation: float 12s ease-in-out infinite;
-}
-
-/* Progress bar animation */
-.progress-bar {
-  background: linear-gradient(90deg, #6366f1, #a855f7, #6366f1);
-  background-size: 200% 100%;
-  animation: progressShimmer 2s linear infinite;
-}
-@keyframes progressShimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-/* Dropzone pulse */
-.dropzone-active {
-  animation: dropPulse 1.5s ease-in-out infinite;
-}
-@keyframes dropPulse {
-  0%, 100% { border-color: #6366f1; box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.3); }
-  50% { border-color: #a855f7; box-shadow: 0 0 0 12px rgba(99, 102, 241, 0); }
+  background: rgba(120, 120, 120, 0.5);
 }
