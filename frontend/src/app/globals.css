@@ -1,7 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+<<<<<<< HEAD
 :root {
   --tesla-blue: #3e6ae1;
   --tesla-blue-hover: #3457c1;
@@ -17,6 +20,8 @@
   --tesla-border: rgba(255, 255, 255, 0.12);
 }
 
+=======
+>>>>>>> 8aff3c57cd38a2d38b5ad80820384bdc4e2842f2
 @layer base {
   * {
     @apply box-border;
