@@ -2,7 +2,7 @@
 
 ConvertFlow is a powerful, modern, and scalable SaaS-style web application designed to handle all your file conversion needs. Whether you're converting PDFs to Word documents, resizing images, or transforming Excel sheets to CSV, ConvertFlow provides a seamless, high-performance experience with a stunning user interface.
 
-## 🌟 Overview
+##  Overview
 
 The application is built using a decoupled architecture with a **Next.js** frontend and a **Node.js/Express** backend. It leverages **BullMQ** and **Redis** for asynchronous job processing, ensuring that heavy conversions don't block the main server and providing real-time progress updates.
 
